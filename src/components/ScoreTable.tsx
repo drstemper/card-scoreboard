@@ -123,6 +123,18 @@ export const ScoreTable = ({ config, playerNames }: ScoreTableProps) => {
     }, 0)
   );
 
+  const handleMadeBidChange = (
+    roundIndex: number,
+    playerIndex: number,
+    checked: boolean
+  ) => {
+    const bid = bids[roundIndex][playerIndex];
+    if (typeof bid === 'number') {
+      const newScore = checked ? 10 + bid : 0;
+      handleScoreChange(roundIndex, playerIndex, newScore.toString());
+    }
+  };
+
   return (
     <div className="table-container">
       <table>
@@ -140,6 +152,21 @@ export const ScoreTable = ({ config, playerNames }: ScoreTableProps) => {
             const dealerIndex = roundIndex % playerNames.length;
             // Determine the display value for the round
             const resolvedRoundValue = config.getWildCard ? config.getWildCard(round) : round;
+
+            // Calculate total bids for validation
+            let totalBids = 0;
+            let allBidsEntered = true;
+            if (config.bidding) {
+              for (let i = 0; i < playerNames.length; i++) {
+                const bid = bids[roundIndex][i];
+                if (typeof bid === 'number') {
+                  totalBids += bid;
+                } else {
+                  allBidsEntered = false;
+                }
+              }
+            }
+
             return (
               <tr key={`round-${roundIndex}`}>
                 <td className="round-label">
@@ -153,23 +180,20 @@ export const ScoreTable = ({ config, playerNames }: ScoreTableProps) => {
                   const bid = bids[roundIndex][playerIndex];
 
                   let scoreClass = 'score-input';
+                  let madeBid = false;
+
                   if (config.bidding && typeof score === 'number' && typeof bid === 'number') {
-                    // Standard Oh Hell/Oh Poop scoring check: 10 + bid
-                    // If score matches 10 + bid, it's a success (Green)
-                    // If not, it's a failure (Red)
-                    // Wait, user said "if a player gets their bid". 
-                    // Usually getting bid means score = 10 + bid.
-                    // But maybe they just mean score >= bid? 
-                    // "if they miss, mark it with red".
-                    // Let's assume standard scoring: Success = (score === 10 + bid).
-                    // Actually, some play 1 point per trick + 10 bonus.
-                    // Let's just check if score == 10 + bid.
                     if (score === 10 + bid) {
                       scoreClass += ' success';
+                      madeBid = true;
                     } else {
                       scoreClass += ' failure';
                     }
                   }
+
+                  const isDealer = playerIndex === dealerIndex;
+                  const isInvalidBid = config.bidding && isDealer && allBidsEntered && totalBids === round;
+                  const bidClass = `bid-input ${isInvalidBid ? 'error' : ''}`;
 
                   return (
                     <td
@@ -179,19 +203,22 @@ export const ScoreTable = ({ config, playerNames }: ScoreTableProps) => {
                       <div className="cell-content">
                         <div className="inputs-wrapper">
                           {config.bidding && (
-                            <input
-                              type="number"
-                              className="bid-input"
-                              placeholder="Bid"
-                              value={bids[roundIndex][playerIndex]}
-                              onChange={(e) =>
-                                handleBidChange(
-                                  roundIndex,
-                                  playerIndex,
-                                  e.target.value
-                                )
-                              }
-                            />
+                            <div className="bid-wrapper">
+                              <input
+                                type="number"
+                                className={bidClass}
+                                placeholder="Bid"
+                                value={bids[roundIndex][playerIndex]}
+                                onChange={(e) =>
+                                  handleBidChange(
+                                    roundIndex,
+                                    playerIndex,
+                                    e.target.value
+                                  )
+                                }
+                                title={isInvalidBid ? "Total bids cannot equal round number" : "Bid"}
+                              />
+                            </div>
                           )}
                           <input
                             type="number"
@@ -206,14 +233,36 @@ export const ScoreTable = ({ config, playerNames }: ScoreTableProps) => {
                             }
                           />
                         </div>
-                        <button
-                          className={`went-out-toggle ${wentOut[roundIndex][playerIndex] ? 'active' : ''}`}
-                          onClick={() => toggleWentOut(roundIndex, playerIndex)}
-                          title="Toggle Went Out"
-                          tabIndex={-1}
-                        >
-                          ★
-                        </button>
+
+                        {/* Action Area: Either Checkbox (for bidding) or Star (for others) */}
+                        <div className="action-area">
+                          {config.bidding ? (
+                            <input
+                              type="checkbox"
+                              className="made-bid-checkbox"
+                              checked={madeBid}
+                              onChange={(e) =>
+                                handleMadeBidChange(
+                                  roundIndex,
+                                  playerIndex,
+                                  e.target.checked
+                                )
+                              }
+                              title="Made Bid?"
+                            />
+                          ) : (
+                            config.showWentOut !== false && (
+                              <button
+                                className={`went-out-toggle ${wentOut[roundIndex][playerIndex] ? 'active' : ''}`}
+                                onClick={() => toggleWentOut(roundIndex, playerIndex)}
+                                title="Toggle Went Out"
+                                tabIndex={-1}
+                              >
+                                ★
+                              </button>
+                            )
+                          )}
+                        </div>
                       </div>
                     </td>
                   );

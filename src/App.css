@@ -145,6 +145,33 @@ th {
   opacity: 1;
 }
 
+.action-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  margin-left: 4px;
+}
+
+.bid-wrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 4px;
+}
+
+.made-bid-checkbox {
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  accent-color: #4caf50;
+}
+
+.bid-input.error {
+  border-bottom: 2px solid #f44336;
+  color: #f44336;
+}
+
 .went-out-toggle.active {
   color: #ffd700;
   /* Gold */

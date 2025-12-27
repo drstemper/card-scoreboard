@@ -2,6 +2,7 @@ export interface GameConfig {
   gameName: string;
   rounds: number[] | ((playerCount: number) => number[]);
   bidding?: boolean;
+  showWentOut?: boolean;
   getWildCard?: (round: number) => string;
   scoringDirection: 'asc' | 'desc';
   playerCount: {

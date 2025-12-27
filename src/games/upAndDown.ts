@@ -25,6 +25,7 @@ export const configUpAndDown: GameConfig = {
         return rounds;
     },
     bidding: true,
+    showWentOut: false,
     scoringDirection: 'asc', // Highest score usually wins in trick-taking, but this is a scoreboard, so we'll assume standard score tracking.
     // Actually, Up and Down is often bid-based. 
     // For a simple scoreboard, we just track points.

@@ -9,6 +9,7 @@ export const config313: GameConfig = {
     if (round === 13) return 'K';
     return round.toString();
   },
+  showWentOut: true,
   scoringDirection: 'asc',
   playerCount: {
     min: 2,
