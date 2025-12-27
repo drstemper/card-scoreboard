@@ -4,13 +4,16 @@ import { GameConfig } from '../types';
 interface ScoreTableProps {
   config: GameConfig;
   playerNames: string[];
+  onReset: () => void;
+  startingDealerIndex: number;
 }
 
-export const ScoreTable = ({ config, playerNames }: ScoreTableProps) => {
+export const ScoreTable = ({ config, playerNames, onReset, startingDealerIndex }: ScoreTableProps) => {
   // Resolve rounds based on player count if it's a function
-  const rounds = Array.isArray(config.rounds)
-    ? config.rounds
-    : config.rounds(playerNames.length);
+  const rounds =
+    typeof config.rounds === 'function'
+      ? config.rounds(playerNames.length)
+      : config.rounds;
 
   // Initialize scores state with a 2D array based on rounds and players
   const [scores, setScores] = useState<(number | '')[][]>(() => {
@@ -137,11 +140,14 @@ export const ScoreTable = ({ config, playerNames }: ScoreTableProps) => {
 
   return (
     <div className="table-container">
+      <div className="table-header">
+        <h2>{config.gameName} Scoreboard</h2>
+      </div>
       <table>
         <thead>
           <tr>
             <th>Round</th>
-            <th>Dealer</th>
+            {config.showDealer !== false && <th>Dealer</th>}
             {playerNames.map((name) => (
               <th key={name}>{name}</th>
             ))}
@@ -149,7 +155,7 @@ export const ScoreTable = ({ config, playerNames }: ScoreTableProps) => {
         </thead>
         <tbody>
           {rounds.map((round, roundIndex) => {
-            const dealerIndex = roundIndex % playerNames.length;
+            const dealerIndex = (roundIndex + startingDealerIndex) % playerNames.length;
             // Determine the display value for the round
             const resolvedRoundValue = config.getWildCard ? config.getWildCard(round) : round;
 
@@ -174,7 +180,9 @@ export const ScoreTable = ({ config, playerNames }: ScoreTableProps) => {
                     <span>{resolvedRoundValue}</span>
                   </div>
                 </td>
-                <td className="dealer-name">{playerNames[dealerIndex]}</td>
+                {config.showDealer !== false && (
+                  <td className="dealer-name">{playerNames[dealerIndex]}</td>
+                )}
                 {playerNames.map((_, playerIndex) => {
                   const score = scores[roundIndex][playerIndex];
                   const bid = bids[roundIndex][playerIndex];
@@ -280,6 +288,9 @@ export const ScoreTable = ({ config, playerNames }: ScoreTableProps) => {
           </tr>
         </tfoot>
       </table>
+      <div className="table-footer">
+        <button onClick={onReset} className="reset-btn">New Game</button>
+      </div>
     </div>
   );
 };

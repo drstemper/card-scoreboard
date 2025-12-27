@@ -92,6 +92,20 @@ th {
   font-weight: bold;
 }
 
+.reset-btn {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.reset-btn:hover {
+  background-color: #d32f2f;
+}
+
 .went-out-toggle {
   background: none;
   border: none;
@@ -170,6 +184,57 @@ th {
 .bid-input.error {
   border-bottom: 2px solid #f44336;
   color: #f44336;
+}
+
+.dealer-select {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid #555;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: bold;
+  color: #555;
+  margin-right: 8px;
+  transition: all 0.2s;
+}
+
+.table-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding: 0 1rem;
+}
+
+.table-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+.table-header h2 {
+  margin: 0;
+}
+
+.game-selector {
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.game-selector select {
+  padding: 0.5rem;
+  font-size: 1rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  color: #333;
 }
 
 .went-out-toggle.active {

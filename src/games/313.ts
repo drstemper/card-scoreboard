@@ -10,6 +10,7 @@ export const config313: GameConfig = {
     return round.toString();
   },
   showWentOut: true,
+  showDealer: true,
   scoringDirection: 'asc',
   playerCount: {
     min: 2,

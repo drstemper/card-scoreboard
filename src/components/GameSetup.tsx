@@ -1,73 +1,92 @@
 import { useState } from 'react';
+import { GameConfig } from '../types';
 
 interface GameSetupProps {
-    onStartGame: (players: string[]) => void;
-    minPlayers: number;
-    maxPlayers: number;
+    config: GameConfig;
+    onStartGame: (playerNames: string[], startingDealerIndex: number) => void;
+    playerCount: {
+        min: number;
+        max: number;
+    };
 }
 
-export const GameSetup = ({ onStartGame, minPlayers, maxPlayers }: GameSetupProps) => {
-    const [players, setPlayers] = useState<string[]>(['', '']);
+export const GameSetup = ({ config, onStartGame, playerCount }: GameSetupProps) => {
+    const [playerNames, setPlayerNames] = useState<string[]>(['', '']);
+    const [startingDealerIndex, setStartingDealerIndex] = useState(0);
 
-    const handlePlayerChange = (index: number, name: string) => {
-        const newPlayers = [...players];
-        newPlayers[index] = name;
-        setPlayers(newPlayers);
+    const handleNameChange = (index: number, value: string) => {
+        const newNames = [...playerNames];
+        newNames[index] = value;
+        setPlayerNames(newNames);
     };
 
     const addPlayer = () => {
-        if (players.length < maxPlayers) {
-            setPlayers([...players, '']);
+        if (playerNames.length < playerCount.max) {
+            setPlayerNames([...playerNames, '']);
         }
     };
 
     const removePlayer = (index: number) => {
-        if (players.length > minPlayers) {
-            const newPlayers = players.filter((_, i) => i !== index);
-            setPlayers(newPlayers);
+        if (playerNames.length > playerCount.min) {
+            const newNames = playerNames.filter((_, i) => i !== index);
+            setPlayerNames(newNames);
+            if (startingDealerIndex >= newNames.length) {
+                setStartingDealerIndex(0);
+            }
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleStart = (e: React.FormEvent) => {
         e.preventDefault();
-        const validPlayers = players.filter((p) => p.trim() !== '');
-        if (validPlayers.length >= minPlayers) {
-            onStartGame(validPlayers);
-        }
+        // Filter out empty names or use default names if needed
+        const finalNames = playerNames.map((name, i) => name.trim() || `Player ${i + 1}`);
+        onStartGame(finalNames, startingDealerIndex);
     };
 
     return (
         <div className="game-setup">
-            <h2>Who's Playing?</h2>
-            <form onSubmit={handleSubmit}>
-                {players.map((player, index) => (
-                    <div key={index} className="player-input-group">
-                        <input
-                            type="text"
-                            placeholder={`Player ${index + 1}`}
-                            value={player}
-                            onChange={(e) => handlePlayerChange(index, e.target.value)}
-                            required
-                        />
-                        {players.length > minPlayers && (
-                            <button
-                                type="button"
-                                className="remove-player-btn"
-                                onClick={() => removePlayer(index)}
-                                aria-label="Remove player"
-                            >
-                                ✕
-                            </button>
-                        )}
-                    </div>
-                ))}
+            <h2>{config.gameName} Setup</h2>
+            <form onSubmit={handleStart}>
+                <div className="player-inputs">
+                    {playerNames.map((name, index) => (
+                        <div key={index} className="player-input-group">
+                            <input
+                                type="text"
+                                placeholder={`Player ${index + 1}`}
+                                value={name}
+                                onChange={(e) => handleNameChange(index, e.target.value)}
+                                className="player-name-input"
+                            />
+                            {config.showDealer !== false && (
+                                <div
+                                    className={`dealer-select ${startingDealerIndex === index ? 'selected' : ''}`}
+                                    onClick={() => setStartingDealerIndex(index)}
+                                    title="Start as Dealer"
+                                >
+                                    D
+                                </div>
+                            )}
+                            {playerNames.length > playerCount.min && (
+                                <button
+                                    type="button"
+                                    onClick={() => removePlayer(index)}
+                                    className="remove-player-btn"
+                                    title="Remove Player"
+                                >
+                                    ✕
+                                </button>
+                            )}
+                        </div>
+                    ))}
+                </div>
+
                 <div className="setup-actions">
-                    {players.length < maxPlayers && (
+                    {playerNames.length < playerCount.max && (
                         <button type="button" onClick={addPlayer} className="add-player-btn">
                             + Add Player
                         </button>
                     )}
-                    <button type="submit" className="start-game-btn" disabled={players.filter(p => p.trim()).length < minPlayers}>
+                    <button type="submit" className="start-game-btn">
                         Start Game
                     </button>
                 </div>
