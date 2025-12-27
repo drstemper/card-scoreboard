@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { GameConfig } from '../types';
 
 interface ScoreTableProps {
@@ -13,25 +13,54 @@ export const ScoreTable = ({ config, playerNames }: ScoreTableProps) => {
     : config.rounds(playerNames.length);
 
   // Initialize scores state with a 2D array based on rounds and players
-  const [scores, setScores] = useState<(number | '')[][]>(() =>
-    Array(rounds.length)
+  const [scores, setScores] = useState<(number | '')[][]>(() => {
+    const saved = localStorage.getItem('gameData');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed.scores && parsed.scores.length === rounds.length && parsed.scores[0].length === playerNames.length) {
+        return parsed.scores;
+      }
+    }
+    return Array(rounds.length)
       .fill(null)
-      .map(() => Array(playerNames.length).fill(''))
-  );
+      .map(() => Array(playerNames.length).fill(''));
+  });
 
   // Initialize wentOut state
-  const [wentOut, setWentOut] = useState<boolean[][]>(() =>
-    Array(rounds.length)
+  const [wentOut, setWentOut] = useState<boolean[][]>(() => {
+    const saved = localStorage.getItem('gameData');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed.wentOut && parsed.wentOut.length === rounds.length && parsed.wentOut[0].length === playerNames.length) {
+        return parsed.wentOut;
+      }
+    }
+    return Array(rounds.length)
       .fill(null)
-      .map(() => Array(playerNames.length).fill(false))
-  );
+      .map(() => Array(playerNames.length).fill(false));
+  });
 
   // Initialize bids state
-  const [bids, setBids] = useState<(number | '')[][]>(() =>
-    Array(rounds.length)
+  const [bids, setBids] = useState<(number | '')[][]>(() => {
+    const saved = localStorage.getItem('gameData');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed.bids && parsed.bids.length === rounds.length && parsed.bids[0].length === playerNames.length) {
+        return parsed.bids;
+      }
+    }
+    return Array(rounds.length)
       .fill(null)
-      .map(() => Array(playerNames.length).fill(''))
-  );
+      .map(() => Array(playerNames.length).fill(''));
+  });
+
+  useEffect(() => {
+    localStorage.setItem('gameData', JSON.stringify({
+      scores,
+      wentOut,
+      bids
+    }));
+  }, [scores, wentOut, bids]);
 
   // Handle changes to a score input field
   const handleScoreChange = (
@@ -148,43 +177,43 @@ export const ScoreTable = ({ config, playerNames }: ScoreTableProps) => {
                       className={`score-cell ${wentOut[roundIndex][playerIndex] ? 'went-out' : ''}`}
                     >
                       <div className="cell-content">
-                        {config.bidding && (
+                        <div className="inputs-wrapper">
+                          {config.bidding && (
+                            <input
+                              type="number"
+                              className="bid-input"
+                              placeholder="Bid"
+                              value={bids[roundIndex][playerIndex]}
+                              onChange={(e) =>
+                                handleBidChange(
+                                  roundIndex,
+                                  playerIndex,
+                                  e.target.value
+                                )
+                              }
+                            />
+                          )}
                           <input
                             type="number"
-                            className="bid-input"
-                            placeholder="Bid"
-                            value={bids[roundIndex][playerIndex]}
+                            className={scoreClass}
+                            value={scores[roundIndex][playerIndex]}
                             onChange={(e) =>
-                              handleBidChange(
+                              handleScoreChange(
                                 roundIndex,
                                 playerIndex,
                                 e.target.value
                               )
                             }
                           />
-                        )}
-                        <input
-                          type="number"
-                          className={scoreClass}
-                          value={scores[roundIndex][playerIndex]}
-                          onChange={(e) =>
-                            handleScoreChange(
-                              roundIndex,
-                              playerIndex,
-                              e.target.value
-                            )
-                          }
-                        />
-                        {!config.bidding && (
-                          <button
-                            className={`went-out-toggle ${wentOut[roundIndex][playerIndex] ? 'active' : ''}`}
-                            onClick={() => toggleWentOut(roundIndex, playerIndex)}
-                            title="Toggle Went Out"
-                            tabIndex={-1}
-                          >
-                            ★
-                          </button>
-                        )}
+                        </div>
+                        <button
+                          className={`went-out-toggle ${wentOut[roundIndex][playerIndex] ? 'active' : ''}`}
+                          onClick={() => toggleWentOut(roundIndex, playerIndex)}
+                          title="Toggle Went Out"
+                          tabIndex={-1}
+                        >
+                          ★
+                        </button>
                       </div>
                     </td>
                   );

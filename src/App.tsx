@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
 import { ScoreTable } from './components/ScoreTable';
 import { GameSetup } from './components/GameSetup';
@@ -9,11 +9,43 @@ import { configMexicanTrain } from './games/mexicanTrain';
 import { configUpAndDown } from './games/upAndDown';
 
 function App() {
-  const [selectedGame, setSelectedGame] = useState<GameConfig>(config313);
-  const [players, setPlayers] = useState<string[]>([]);
-  const [gameStarted, setGameStarted] = useState(false);
-
   const games = [config313, configMexicanTrain, configUpAndDown];
+
+  const [selectedGame, setSelectedGame] = useState<GameConfig>(() => {
+    const saved = localStorage.getItem('gameState');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      const game = games.find(g => g.gameName === parsed.gameName);
+      if (game) return game;
+    }
+    return config313;
+  });
+
+  const [players, setPlayers] = useState<string[]>(() => {
+    const saved = localStorage.getItem('gameState');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed.players) return parsed.players;
+    }
+    return [];
+  });
+
+  const [gameStarted, setGameStarted] = useState(() => {
+    const saved = localStorage.getItem('gameState');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      return parsed.gameStarted || false;
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('gameState', JSON.stringify({
+      gameName: selectedGame.gameName,
+      players,
+      gameStarted
+    }));
+  }, [selectedGame, players, gameStarted]);
 
   const handleStartGame = (playerNames: string[]) => {
     setPlayers(playerNames);
@@ -21,8 +53,12 @@ function App() {
   };
 
   const handleReset = () => {
-    setGameStarted(false);
-    setPlayers([]);
+    if (window.confirm('Are you sure you want to start a new game? This will clear current scores.')) {
+      setGameStarted(false);
+      setPlayers([]);
+      localStorage.removeItem('gameState');
+      localStorage.removeItem('gameData');
+    }
   };
 
   return (

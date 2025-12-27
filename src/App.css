@@ -45,9 +45,18 @@ th {
 
 .cell-content {
   display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.inputs-wrapper {
+  display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
+  flex: 1;
 }
 
 .score-input {
@@ -84,22 +93,55 @@ th {
 }
 
 .went-out-toggle {
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  background: transparent;
+  background: none;
   border: none;
-  color: #444;
   cursor: pointer;
-  font-size: 0.8rem;
-  padding: 2px;
-  line-height: 1;
+  font-size: 1.2rem;
+  color: #ccc;
   opacity: 0.3;
-  transition: all 0.2s;
+  /* Visible but subtle */
+  transition: opacity 0.2s, color 0.2s;
+  padding: 0 0 0 4px;
+  line-height: 1;
+  margin-top: 0;
+}
+
+.score-input {
+  width: 100%;
+  padding: 0.5rem;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-size: 1.1rem;
+  text-align: center;
+  font-family: inherit;
+}
+
+.bid-input {
+  width: 100%;
+  padding: 0.2rem;
+  border: none;
+  border-bottom: 1px solid #333;
+  background: transparent;
+  color: #aaa;
+  font-size: 0.8rem;
+  text-align: center;
+  font-family: inherit;
+}
+
+.score-input.success {
+  color: #4caf50;
+  font-weight: bold;
+}
+
+.score-input.failure {
+  color: #f44336;
+  font-weight: bold;
 }
 
 .score-cell:hover .went-out-toggle,
-.went-out-toggle.active {
+.went-out-toggle.active,
+.went-out-toggle:focus {
   opacity: 1;
 }
 
