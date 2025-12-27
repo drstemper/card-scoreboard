@@ -152,6 +152,12 @@ export const ScoreTable = ({ config, playerNames, onReset, startingDealerIndex }
               <th key={name}>{name}</th>
             ))}
           </tr>
+          <tr>
+            <th colSpan={config.showDealer !== false ? 2 : 1}>Total</th>
+            {totals.map((total, playerIndex) => (
+              <th key={`top-total-${playerIndex}`}>{total}</th>
+            ))}
+          </tr>
         </thead>
         <tbody>
           {rounds.map((round, roundIndex) => {
@@ -281,7 +287,7 @@ export const ScoreTable = ({ config, playerNames, onReset, startingDealerIndex }
         </tbody>
         <tfoot>
           <tr>
-            <th colSpan={2}>Total</th>
+            <th colSpan={config.showDealer !== false ? 2 : 1}>Total</th>
             {totals.map((total, playerIndex) => (
               <th key={`total-${playerIndex}`}>{total}</th>
             ))}
