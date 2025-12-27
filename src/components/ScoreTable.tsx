@@ -150,146 +150,163 @@ export const ScoreTable = ({ config, playerNames, onReset, startingDealerIndex }
           </tr>
         </thead>
         <tbody>
-          {rounds.map((round, roundIndex) => {
-            const dealerIndex = (roundIndex + startingDealerIndex) % playerNames.length;
-            // Determine the display value for the round
-            const resolvedRoundValue = config.getWildCard ? config.getWildCard(round) : round;
+          {(() => {
+            const runningTotals = new Array(playerNames.length).fill(0);
 
-            // Calculate total bids for validation
-            let totalBids = 0;
-            let allBidsEntered = true;
-            if (config.bidding) {
-              for (let i = 0; i < playerNames.length; i++) {
-                const bid = bids[roundIndex][i];
-                if (typeof bid === 'number') {
-                  totalBids += bid;
-                } else {
-                  allBidsEntered = false;
+            return rounds.map((round, roundIndex) => {
+              const dealerIndex = (roundIndex + startingDealerIndex) % playerNames.length;
+              // Determine the display value for the round
+              const resolvedRoundValue = config.getWildCard ? config.getWildCard(round) : round;
+
+              // Calculate total bids for validation
+              let totalBids = 0;
+              let allBidsEntered = true;
+              if (config.bidding) {
+                for (let i = 0; i < playerNames.length; i++) {
+                  const bid = bids[roundIndex][i];
+                  if (typeof bid === 'number') {
+                    totalBids += bid;
+                  } else {
+                    allBidsEntered = false;
+                  }
                 }
               }
-            }
 
-            return (
-              <tr key={`round-${roundIndex}`}>
-                <td className="round-label">
-                  <div className="round-info">
-                    <span>{resolvedRoundValue}</span>
-                  </div>
-                </td>
-                {config.showDealer !== false && (
-                  <td className="dealer-name">{playerNames[dealerIndex]}</td>
-                )}
-                {playerNames.map((_, playerIndex) => {
-                  const score = scores[roundIndex][playerIndex];
-                  const bid = bids[roundIndex][playerIndex];
+              return (
+                <tr key={`round-${roundIndex}`}>
+                  <td className="round-label">
+                    <div className="round-info">
+                      <span>{resolvedRoundValue}</span>
+                    </div>
+                  </td>
+                  {config.showDealer !== false && (
+                    <td className="dealer-name">{playerNames[dealerIndex]}</td>
+                  )}
+                  {playerNames.map((_, playerIndex) => {
+                    const score = scores[roundIndex][playerIndex];
+                    const bid = bids[roundIndex][playerIndex];
 
-                  let scoreClass = 'score-input';
-                  let madeBid = false;
-
-                  if (config.bidding && typeof score === 'number' && typeof bid === 'number') {
-                    if (score === 10 + bid) {
-                      scoreClass += ' success';
-                      madeBid = true;
-                    } else {
-                      scoreClass += ' failure';
+                    // Update running total
+                    if (typeof score === 'number') {
+                      runningTotals[playerIndex] += score;
                     }
-                  }
+                    const currentRunningTotal = runningTotals[playerIndex];
 
-                  const isDealer = playerIndex === dealerIndex;
-                  const isInvalidBid = config.bidding && isDealer && allBidsEntered && totalBids === round;
-                  const bidClass = `bid-input ${isInvalidBid ? 'error' : ''}`;
+                    let scoreClass = 'score-input';
+                    let madeBid = false;
 
-                  return (
-                    <td
-                      key={`score-${roundIndex}-${playerIndex}`}
-                      className={`score-cell ${wentOut[roundIndex][playerIndex] ? 'went-out' : ''}`}
-                    >
-                      <div className="cell-content">
-                        <div className="inputs-wrapper">
-                          {config.bidding && (
-                            <div className="bid-wrapper">
+                    if (config.bidding && typeof score === 'number' && typeof bid === 'number') {
+                      if (score === 10 + bid) {
+                        scoreClass += ' success';
+                        madeBid = true;
+                      } else {
+                        scoreClass += ' failure';
+                      }
+                    }
+
+                    const isDealer = playerIndex === dealerIndex;
+                    const isInvalidBid = config.bidding && isDealer && allBidsEntered && totalBids === round;
+                    const bidClass = `bid-input ${isInvalidBid ? 'error' : ''}`;
+
+                    return (
+                      <td
+                        key={`score-${roundIndex}-${playerIndex}`}
+                        className={`score-cell ${wentOut[roundIndex][playerIndex] ? 'went-out' : ''}`}
+                      >
+                        <div className="cell-content">
+                          <div className="inputs-wrapper">
+                            {config.bidding && (
+                              <div className="bid-wrapper">
+                                <input
+                                  type="number"
+                                  className={bidClass}
+                                  placeholder="Bid"
+                                  value={bids[roundIndex][playerIndex]}
+                                  onChange={(e) =>
+                                    handleBidChange(
+                                      roundIndex,
+                                      playerIndex,
+                                      e.target.value
+                                    )
+                                  }
+                                  title={isInvalidBid ? "Total bids cannot equal round number" : "Bid"}
+                                />
+                              </div>
+                            )}
+
+                            {config.bidding ? (
+                              <div className="running-total-display">
+                                {typeof score === 'number' ? currentRunningTotal : ''}
+                              </div>
+                            ) : (
                               <input
                                 type="number"
-                                className={bidClass}
-                                placeholder="Bid"
-                                value={bids[roundIndex][playerIndex]}
+                                className={scoreClass}
+                                value={scores[roundIndex][playerIndex]}
                                 onChange={(e) =>
-                                  handleBidChange(
+                                  handleScoreChange(
                                     roundIndex,
                                     playerIndex,
                                     e.target.value
                                   )
                                 }
-                                title={isInvalidBid ? "Total bids cannot equal round number" : "Bid"}
                               />
-                            </div>
-                          )}
-                          <input
-                            type="number"
-                            className={scoreClass}
-                            value={scores[roundIndex][playerIndex]}
-                            onChange={(e) =>
-                              handleScoreChange(
-                                roundIndex,
-                                playerIndex,
-                                e.target.value
-                              )
-                            }
-                          />
-                        </div>
+                            )}
+                          </div>
 
-                        {/* Action Area: Either Checkbox (for bidding) or Star (for others) */}
-                        <div className="action-area">
-                          {config.bidding ? (
-                            <div className="bid-actions">
-                              <button
-                                className={`bid-btn made ${madeBid ? 'active' : ''}`}
-                                onClick={() => {
-                                  if (typeof bid === 'number') {
-                                    const targetScore = 10 + bid;
-                                    const newScore = score === targetScore ? '' : targetScore;
-                                    handleScoreChange(roundIndex, playerIndex, newScore.toString());
-                                  }
-                                }}
-                                title="Made Bid"
-                                tabIndex={-1}
-                              >
-                                ✓
-                              </button>
-                              <button
-                                className={`bid-btn missed ${score === 0 && typeof bid === 'number' ? 'active' : ''}`}
-                                onClick={() => {
-                                  if (typeof bid === 'number') {
-                                    const newScore = score === 0 ? '' : 0;
-                                    handleScoreChange(roundIndex, playerIndex, newScore.toString());
-                                  }
-                                }}
-                                title="Missed Bid"
-                                tabIndex={-1}
-                              >
-                                ✕
-                              </button>
-                            </div>
-                          ) : (
-                            config.showWentOut !== false && (
-                              <button
-                                className={`went-out-toggle ${wentOut[roundIndex][playerIndex] ? 'active' : ''}`}
-                                onClick={() => toggleWentOut(roundIndex, playerIndex)}
-                                title="Toggle Went Out"
-                                tabIndex={-1}
-                              >
-                                ★
-                              </button>
-                            )
-                          )}
+                          {/* Action Area: Either Checkbox (for bidding) or Star (for others) */}
+                          <div className="action-area">
+                            {config.bidding ? (
+                              <div className="bid-actions">
+                                <button
+                                  className={`bid-btn made ${madeBid ? 'active' : ''}`}
+                                  onClick={() => {
+                                    if (typeof bid === 'number') {
+                                      const targetScore = 10 + bid;
+                                      const newScore = score === targetScore ? '' : targetScore;
+                                      handleScoreChange(roundIndex, playerIndex, newScore.toString());
+                                    }
+                                  }}
+                                  title="Made Bid"
+                                  tabIndex={-1}
+                                >
+                                  ✓
+                                </button>
+                                <button
+                                  className={`bid-btn missed ${score === 0 && typeof bid === 'number' ? 'active' : ''}`}
+                                  onClick={() => {
+                                    if (typeof bid === 'number') {
+                                      const newScore = score === 0 ? '' : 0;
+                                      handleScoreChange(roundIndex, playerIndex, newScore.toString());
+                                    }
+                                  }}
+                                  title="Missed Bid"
+                                  tabIndex={-1}
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            ) : (
+                              config.showWentOut !== false && (
+                                <button
+                                  className={`went-out-toggle ${wentOut[roundIndex][playerIndex] ? 'active' : ''}`}
+                                  onClick={() => toggleWentOut(roundIndex, playerIndex)}
+                                  title="Toggle Went Out"
+                                  tabIndex={-1}
+                                >
+                                  ★
+                                </button>
+                              )
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                  );
-                })}
-              </tr>
-            );
-          })}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            });
+          })()}
         </tbody>
         <tfoot>
           <tr>

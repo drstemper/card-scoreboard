@@ -451,3 +451,14 @@ th {
     /* Prevent iOS zoom on focus */
   }
 }
+
+.running-total-display {
+  font-size: 1.2rem;
+  font-weight: bold;
+  padding: 0.5rem;
+  min-height: 38px;
+  /* Match input height roughly */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
