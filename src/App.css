@@ -495,3 +495,12 @@ th {
   font-weight: bold;
   box-shadow: 0 0 5px rgba(156, 39, 176, 0.3);
 }
+
+/* Running Total Colors */
+.running-total-display.success {
+  color: #4caf50;
+}
+
+.running-total-display.failure {
+  color: #f44336;
+}

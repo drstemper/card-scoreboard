@@ -264,7 +264,7 @@ export const ScoreTable = ({ config, playerNames, onReset, startingDealerIndex }
                             )}
 
                             {config.bidding ? (
-                              <div className="running-total-display">
+                              <div className={`running-total-display ${typeof score === 'number' && typeof bid === 'number' ? (madeBid ? 'success' : 'failure') : ''}`}>
                                 {typeof score === 'number' ? currentRunningTotal : ''}
                               </div>
                             ) : (

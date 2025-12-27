@@ -11,7 +11,7 @@ interface GameSetupProps {
 }
 
 export const GameSetup = ({ config, onStartGame, playerCount }: GameSetupProps) => {
-    const [playerNames, setPlayerNames] = useState<string[]>(['', '']);
+    const [playerNames, setPlayerNames] = useState<string[]>(['', '', '', '']);
     const [startingDealerIndex, setStartingDealerIndex] = useState(0);
 
     const handleNameChange = (index: number, value: string) => {
