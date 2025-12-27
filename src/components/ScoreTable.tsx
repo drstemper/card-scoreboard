@@ -126,17 +126,7 @@ export const ScoreTable = ({ config, playerNames, onReset, startingDealerIndex }
     }, 0)
   );
 
-  const handleMadeBidChange = (
-    roundIndex: number,
-    playerIndex: number,
-    checked: boolean
-  ) => {
-    const bid = bids[roundIndex][playerIndex];
-    if (typeof bid === 'number') {
-      const newScore = checked ? 10 + bid : 0;
-      handleScoreChange(roundIndex, playerIndex, newScore.toString());
-    }
-  };
+
 
   return (
     <div className="table-container">
@@ -251,19 +241,35 @@ export const ScoreTable = ({ config, playerNames, onReset, startingDealerIndex }
                         {/* Action Area: Either Checkbox (for bidding) or Star (for others) */}
                         <div className="action-area">
                           {config.bidding ? (
-                            <input
-                              type="checkbox"
-                              className="made-bid-checkbox"
-                              checked={madeBid}
-                              onChange={(e) =>
-                                handleMadeBidChange(
-                                  roundIndex,
-                                  playerIndex,
-                                  e.target.checked
-                                )
-                              }
-                              title="Made Bid?"
-                            />
+                            <div className="bid-actions">
+                              <button
+                                className={`bid-btn made ${madeBid ? 'active' : ''}`}
+                                onClick={() => {
+                                  if (typeof bid === 'number') {
+                                    const targetScore = 10 + bid;
+                                    const newScore = score === targetScore ? '' : targetScore;
+                                    handleScoreChange(roundIndex, playerIndex, newScore.toString());
+                                  }
+                                }}
+                                title="Made Bid"
+                                tabIndex={-1}
+                              >
+                                ✓
+                              </button>
+                              <button
+                                className={`bid-btn missed ${score === 0 && typeof bid === 'number' ? 'active' : ''}`}
+                                onClick={() => {
+                                  if (typeof bid === 'number') {
+                                    const newScore = score === 0 ? '' : 0;
+                                    handleScoreChange(roundIndex, playerIndex, newScore.toString());
+                                  }
+                                }}
+                                title="Missed Bid"
+                                tabIndex={-1}
+                              >
+                                ✕
+                              </button>
+                            </div>
                           ) : (
                             config.showWentOut !== false && (
                               <button
