@@ -201,6 +201,12 @@ th {
   transition: all 0.2s;
 }
 
+.dealer-select.selected {
+  background-color: #ffd700;
+  color: #000;
+  border-color: #ffd700;
+}
+
 .table-header {
   display: flex;
   justify-content: center;
