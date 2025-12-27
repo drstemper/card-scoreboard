@@ -1,6 +1,7 @@
 export interface GameConfig {
   gameName: string;
-  rounds: number[];
+  rounds: number[] | ((playerCount: number) => number[]);
+  bidding?: boolean;
   getWildCard?: (round: number) => string;
   scoringDirection: 'asc' | 'desc';
   playerCount: {

@@ -44,10 +44,43 @@ th {
 }
 
 .cell-content {
-  position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  gap: 2px;
+}
+
+.score-input {
+  width: 100%;
+  padding: 0.5rem;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-size: 1.1rem;
+  text-align: center;
+  font-family: inherit;
+}
+
+.bid-input {
+  width: 100%;
+  padding: 0.2rem;
+  border: none;
+  border-bottom: 1px solid #333;
+  background: transparent;
+  color: #aaa;
+  font-size: 0.8rem;
+  text-align: center;
+  font-family: inherit;
+}
+
+.score-input.success {
+  color: #4caf50;
+  font-weight: bold;
+}
+
+.score-input.failure {
+  color: #f44336;
+  font-weight: bold;
 }
 
 .went-out-toggle {
@@ -134,4 +167,57 @@ th {
 .start-game-btn:disabled {
   background-color: #ccc;
   cursor: not-allowed;
+}
+
+.game-selector {
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.game-selector select {
+  padding: 0.5rem;
+  font-size: 1.1rem;
+  border-radius: 4px;
+  border: 1px solid #555;
+  background-color: #2a2a2a;
+  color: white;
+  min-width: 200px;
+  text-align: center;
+}
+
+.game-selector label {
+  color: #aaa;
+  font-size: 0.9rem;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.header-actions h1 {
+  margin: 0;
+}
+
+.reset-btn {
+  position: absolute;
+  left: 0;
+  background: transparent;
+  border: 1px solid #444;
+  color: #888;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.reset-btn:hover {
+  border-color: #646cff;
+  color: #fff;
 }

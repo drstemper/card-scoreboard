@@ -12,6 +12,6 @@ export const config313: GameConfig = {
   scoringDirection: 'asc',
   playerCount: {
     min: 2,
-    max: 6, // Typical max for single deck, but can be more with multiple decks
+    max: 20, // Typical max for single deck, but can be more with multiple decks
   },
 };

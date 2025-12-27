@@ -7,18 +7,30 @@ interface ScoreTableProps {
 }
 
 export const ScoreTable = ({ config, playerNames }: ScoreTableProps) => {
+  // Resolve rounds based on player count if it's a function
+  const rounds = Array.isArray(config.rounds)
+    ? config.rounds
+    : config.rounds(playerNames.length);
+
   // Initialize scores state with a 2D array based on rounds and players
   const [scores, setScores] = useState<(number | '')[][]>(() =>
-    Array(config.rounds.length)
+    Array(rounds.length)
       .fill(null)
       .map(() => Array(playerNames.length).fill(''))
   );
 
   // Initialize wentOut state
   const [wentOut, setWentOut] = useState<boolean[][]>(() =>
-    Array(config.rounds.length)
+    Array(rounds.length)
       .fill(null)
       .map(() => Array(playerNames.length).fill(false))
+  );
+
+  // Initialize bids state
+  const [bids, setBids] = useState<(number | '')[][]>(() =>
+    Array(rounds.length)
+      .fill(null)
+      .map(() => Array(playerNames.length).fill(''))
   );
 
   // Handle changes to a score input field
@@ -41,6 +53,27 @@ export const ScoreTable = ({ config, playerNames }: ScoreTableProps) => {
       return round;
     });
     setScores(newScores);
+  };
+
+  const handleBidChange = (
+    roundIndex: number,
+    playerIndex: number,
+    value: string
+  ) => {
+    const newBids = bids.map((round, rIndex) => {
+      if (rIndex === roundIndex) {
+        return round.map((b, pIndex) => {
+          if (pIndex === playerIndex) {
+            if (value === '') return '';
+            const parsed = parseInt(value, 10);
+            return isNaN(parsed) ? '' : parsed;
+          }
+          return b;
+        });
+      }
+      return round;
+    });
+    setBids(newBids);
   };
 
   const toggleWentOut = (roundIndex: number, playerIndex: number) => {
@@ -74,45 +107,88 @@ export const ScoreTable = ({ config, playerNames }: ScoreTableProps) => {
           </tr>
         </thead>
         <tbody>
-          {config.rounds.map((round, roundIndex) => {
+          {rounds.map((round, roundIndex) => {
             const dealerIndex = roundIndex % playerNames.length;
+            // Determine the display value for the round
+            const resolvedRoundValue = config.getWildCard ? config.getWildCard(round) : round;
             return (
               <tr key={`round-${roundIndex}`}>
                 <td className="round-label">
                   <div className="round-info">
-                    <span>{config.getWildCard ? config.getWildCard(round) : round}</span>
+                    <span>{resolvedRoundValue}</span>
                   </div>
                 </td>
                 <td className="dealer-name">{playerNames[dealerIndex]}</td>
-                {playerNames.map((_, playerIndex) => (
-                  <td
-                    key={`score-${roundIndex}-${playerIndex}`}
-                    className={`score-cell ${wentOut[roundIndex][playerIndex] ? 'went-out' : ''}`}
-                  >
-                    <div className="cell-content">
-                      <input
-                        type="number"
-                        className="score-input"
-                        value={scores[roundIndex][playerIndex]}
-                        onChange={(e) =>
-                          handleScoreChange(
-                            roundIndex,
-                            playerIndex,
-                            e.target.value
-                          )
-                        }
-                      />
-                      <button
-                        className={`went-out-toggle ${wentOut[roundIndex][playerIndex] ? 'active' : ''}`}
-                        onClick={() => toggleWentOut(roundIndex, playerIndex)}
-                        title="Toggle Went Out"
-                        tabIndex={-1}
-                      >
-                        ★
-                      </button>
-                    </div>
-                  </td>
-                ))}
+                {playerNames.map((_, playerIndex) => {
+                  const score = scores[roundIndex][playerIndex];
+                  const bid = bids[roundIndex][playerIndex];
+
+                  let scoreClass = 'score-input';
+                  if (config.bidding && typeof score === 'number' && typeof bid === 'number') {
+                    // Standard Oh Hell/Oh Poop scoring check: 10 + bid
+                    // If score matches 10 + bid, it's a success (Green)
+                    // If not, it's a failure (Red)
+                    // Wait, user said "if a player gets their bid". 
+                    // Usually getting bid means score = 10 + bid.
+                    // But maybe they just mean score >= bid? 
+                    // "if they miss, mark it with red".
+                    // Let's assume standard scoring: Success = (score === 10 + bid).
+                    // Actually, some play 1 point per trick + 10 bonus.
+                    // Let's just check if score == 10 + bid.
+                    if (score === 10 + bid) {
+                      scoreClass += ' success';
+                    } else {
+                      scoreClass += ' failure';
+                    }
+                  }
+
+                  return (
+                    <td
+                      key={`score-${roundIndex}-${playerIndex}`}
+                      className={`score-cell ${wentOut[roundIndex][playerIndex] ? 'went-out' : ''}`}
+                    >
+                      <div className="cell-content">
+                        {config.bidding && (
+                          <input
+                            type="number"
+                            className="bid-input"
+                            placeholder="Bid"
+                            value={bids[roundIndex][playerIndex]}
+                            onChange={(e) =>
+                              handleBidChange(
+                                roundIndex,
+                                playerIndex,
+                                e.target.value
+                              )
+                            }
+                          />
+                        )}
+                        <input
+                          type="number"
+                          className={scoreClass}
+                          value={scores[roundIndex][playerIndex]}
+                          onChange={(e) =>
+                            handleScoreChange(
+                              roundIndex,
+                              playerIndex,
+                              e.target.value
+                            )
+                          }
+                        />
+                        {!config.bidding && (
+                          <button
+                            className={`went-out-toggle ${wentOut[roundIndex][playerIndex] ? 'active' : ''}`}
+                            onClick={() => toggleWentOut(roundIndex, playerIndex)}
+                            title="Toggle Went Out"
+                            tabIndex={-1}
+                          >
+                            ★
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  );
+                })}
               </tr>
             );
           })}
