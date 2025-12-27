@@ -43,6 +43,20 @@ export const ScoreTable = ({ config, playerNames, onReset, startingDealerIndex }
       .map(() => Array(playerNames.length).fill(false));
   });
 
+  // Initialize queenOfSpades state
+  const [queenOfSpades, setQueenOfSpades] = useState<boolean[][]>(() => {
+    const saved = localStorage.getItem('gameData');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed.queenOfSpades && parsed.queenOfSpades.length === rounds.length && parsed.queenOfSpades[0].length === playerNames.length) {
+        return parsed.queenOfSpades;
+      }
+    }
+    return Array(rounds.length)
+      .fill(null)
+      .map(() => Array(playerNames.length).fill(false));
+  });
+
   // Initialize bids state
   const [bids, setBids] = useState<(number | '')[][]>(() => {
     const saved = localStorage.getItem('gameData');
@@ -61,9 +75,10 @@ export const ScoreTable = ({ config, playerNames, onReset, startingDealerIndex }
     localStorage.setItem('gameData', JSON.stringify({
       scores,
       wentOut,
+      queenOfSpades,
       bids
     }));
-  }, [scores, wentOut, bids]);
+  }, [scores, wentOut, queenOfSpades, bids]);
 
   // Handle changes to a score input field
   const handleScoreChange = (
@@ -118,6 +133,17 @@ export const ScoreTable = ({ config, playerNames, onReset, startingDealerIndex }
     setWentOut(newWentOut);
   };
 
+  const toggleQueenOfSpades = (roundIndex: number, playerIndex: number) => {
+    const newQueenOfSpades = queenOfSpades.map((round, rIndex) => {
+      if (rIndex === roundIndex) {
+        // Toggle the selected player, clear others in the same row
+        return round.map((q, pIndex) => (pIndex === playerIndex ? !q : false));
+      }
+      return round;
+    });
+    setQueenOfSpades(newQueenOfSpades);
+  };
+
   // Calculate total scores for each player
   const totals = playerNames.map((_, playerIndex) =>
     scores.reduce((acc, roundScores) => {
@@ -156,7 +182,10 @@ export const ScoreTable = ({ config, playerNames, onReset, startingDealerIndex }
             return rounds.map((round, roundIndex) => {
               const dealerIndex = (roundIndex + startingDealerIndex) % playerNames.length;
               // Determine the display value for the round
-              const resolvedRoundValue = config.getWildCard ? config.getWildCard(round) : round;
+              const resolvedRoundValue =
+                config.getWildCard && typeof round === 'number'
+                  ? config.getWildCard(round)
+                  : round;
 
               // Calculate total bids for validation
               let totalBids = 0;
@@ -211,7 +240,7 @@ export const ScoreTable = ({ config, playerNames, onReset, startingDealerIndex }
                     return (
                       <td
                         key={`score-${roundIndex}-${playerIndex}`}
-                        className={`score-cell ${wentOut[roundIndex][playerIndex] ? 'went-out' : ''}`}
+                        className={`score-cell ${wentOut[roundIndex][playerIndex] ? 'went-out' : ''} ${queenOfSpades[roundIndex][playerIndex] ? 'queen-of-spades' : ''}`}
                       >
                         <div className="cell-content">
                           <div className="inputs-wrapper">
@@ -286,6 +315,15 @@ export const ScoreTable = ({ config, playerNames, onReset, startingDealerIndex }
                                   ✕
                                 </button>
                               </div>
+                            ) : config.showQueenOfSpades ? (
+                              <button
+                                className={`queen-toggle ${queenOfSpades[roundIndex][playerIndex] ? 'active' : ''}`}
+                                onClick={() => toggleQueenOfSpades(roundIndex, playerIndex)}
+                                title="Queen of Spades"
+                                tabIndex={-1}
+                              >
+                                Q♠
+                              </button>
                             ) : (
                               config.showWentOut !== false && (
                                 <button

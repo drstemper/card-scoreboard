@@ -462,3 +462,36 @@ th {
   align-items: center;
   justify-content: center;
 }
+
+/* Queen of Spades Styles */
+.queen-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  color: #ccc;
+  opacity: 0.3;
+  padding: 0;
+  line-height: 1;
+  transition: all 0.2s;
+}
+
+.score-cell:hover .queen-toggle,
+.queen-toggle.active,
+.queen-toggle:focus {
+  opacity: 1;
+}
+
+.queen-toggle.active {
+  color: #9c27b0;
+  /* Purple */
+  text-shadow: 0 0 1px rgba(156, 39, 176, 0.3);
+  font-weight: bold;
+}
+
+.score-cell.queen-of-spades .score-input {
+  border-color: #9c27b0;
+  color: #9c27b0;
+  font-weight: bold;
+  box-shadow: 0 0 5px rgba(156, 39, 176, 0.3);
+}

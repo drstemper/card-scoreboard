@@ -5,10 +5,11 @@ import { GameSelection } from './components/GameSelection';
 import { config313 } from './games/313';
 import { configMexicanTrain } from './games/mexicanTrain';
 import { configUpAndDown } from './games/upAndDown';
+import { configHearts } from './games/hearts';
 import { GameConfig } from './types';
 import './App.css';
 
-const games: GameConfig[] = [config313, configMexicanTrain, configUpAndDown];
+const games: GameConfig[] = [config313, configMexicanTrain, configUpAndDown, configHearts];
 
 function App() {
   const [selectedGame, setSelectedGame] = useState<GameConfig>(() => {

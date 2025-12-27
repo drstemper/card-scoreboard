@@ -1,8 +1,9 @@
 export interface GameConfig {
   gameName: string;
-  rounds: number[] | ((playerCount: number) => number[]);
+  rounds: (number | string)[] | ((playerCount: number) => (number | string)[]);
   bidding?: boolean;
   showWentOut?: boolean;
+  showQueenOfSpades?: boolean;
   showDealer?: boolean;
   getWildCard?: (round: number) => string;
   scoringDirection: 'asc' | 'desc';
