@@ -10,7 +10,7 @@ export const configHearts: GameConfig = {
 
         let k = 1;
         let nextDir: 'R' | 'L' = 'R';
-        const numRounds = 100; // Generate 100 rounds to ensure game finishes before rows run out
+        const numRounds = 20; // Generate 20 rounds
 
         for (let i = 0; i < numRounds; i++) {
             if (nextDir === 'R') {
