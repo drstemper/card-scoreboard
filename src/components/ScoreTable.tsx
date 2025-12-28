@@ -161,14 +161,14 @@ export const ScoreTable = ({ config, playerNames, onReset, startingDealerIndex }
       </div>
       <table>
         <thead>
-          <tr>
+          <tr className="header-names-row">
             <th>Round</th>
             {config.showDealer !== false && <th>Dealer</th>}
             {playerNames.map((name) => (
               <th key={name}>{name}</th>
             ))}
           </tr>
-          <tr>
+          <tr className="header-totals-row">
             <th colSpan={config.showDealer !== false ? 2 : 1}>Total</th>
             {totals.map((total, playerIndex) => (
               <th key={`top-total-${playerIndex}`}>{total}</th>

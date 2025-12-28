@@ -423,12 +423,27 @@ th {
     z-index: 30;
   }
 
-  /* Make the header sticky */
-  thead th {
+  /* Make the header sticky with stacking */
+  /* First row (Round, Dealer, Players) */
+  thead tr.header-names-row th {
     position: sticky;
     top: 0;
+    z-index: 21;
+    /* Higher than inputs, lower than nothing critical */
+    background-color: #333;
+    height: 45px;
+    /* Enforce height for reliable offset */
+  }
+
+  /* Second row (Total) */
+  thead tr.header-totals-row th {
+    position: sticky;
+    top: 45px;
+    /* Offset by height of first row */
     z-index: 20;
     background-color: #333;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    /* optional shadow for separation */
   }
 
   /* Minimum width for player columns to prevent squishing */
