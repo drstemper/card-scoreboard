@@ -519,3 +519,97 @@ th {
 .running-total-display.failure {
   color: #f44336;
 }
+
+/* Game Themes */
+/* 3-13: Blue Theme */
+.table-container.game-3-13 table th {
+  background-color: #1a2a3a;
+  border-color: #2c3e50;
+}
+
+.table-container.game-3-13 table td,
+.table-container.game-3-13 table th {
+  border-color: #2c3e50;
+}
+
+.table-container.game-3-13 .score-input {
+  border-color: #2c3e50;
+}
+
+/* Oh Poop: Amber/Brown Theme */
+.table-container.game-oh-poop table th {
+  background-color: #3e2723;
+  border-color: #5d4037;
+}
+
+.table-container.game-oh-poop table td,
+.table-container.game-oh-poop table th {
+  border-color: #5d4037;
+}
+
+.table-container.game-oh-poop .score-input {
+  border-color: #5d4037;
+}
+
+/* Mexican Train: Teal/Green Theme */
+.table-container.game-mexican-train table th {
+  background-color: #004d40;
+  border-color: #00695c;
+}
+
+.table-container.game-mexican-train table td,
+.table-container.game-mexican-train table th {
+  border-color: #00695c;
+}
+
+.table-container.game-mexican-train .score-input {
+  border-color: #00695c;
+}
+
+/* Hearts: Red Theme */
+.table-container.game-hearts table th {
+  background-color: #3e1b1b;
+  border-color: #5c2b2b;
+}
+
+.table-container.game-hearts table td,
+.table-container.game-hearts table th {
+  border-color: #5c2b2b;
+}
+
+.table-container.game-hearts .score-input {
+  border-color: #5c2b2b;
+}
+
+/* Update sticky header styles for mobile to inherit theme bg */
+@media (max-width: 768px) {
+
+  /* Inherit background color from theme rules if set */
+  .table-container.game-3-13 table th:first-child,
+  .table-container.game-3-13 thead th,
+  .table-container.game-3-13 thead tr.header-names-row th,
+  .table-container.game-3-13 thead tr.header-totals-row th {
+    background-color: #1a2a3a;
+  }
+
+  .table-container.game-oh-poop table th:first-child,
+  .table-container.game-oh-poop thead th,
+  .table-container.game-oh-poop thead tr.header-names-row th,
+  .table-container.game-oh-poop thead tr.header-totals-row th {
+    background-color: #3e2723;
+  }
+
+  .table-container.game-mexican-train table th:first-child,
+  .table-container.game-mexican-train thead th,
+  .table-container.game-mexican-train thead tr.header-names-row th,
+  .table-container.game-mexican-train thead tr.header-totals-row th {
+    background-color: #004d40;
+  }
+
+  .table-container.game-hearts table th:first-child,
+  .table-container.game-hearts thead th,
+  .table-container.game-hearts thead tr.header-names-row th,
+  .table-container.game-hearts thead tr.header-totals-row th {
+    background-color: #3e1b1b;
+  }
+}

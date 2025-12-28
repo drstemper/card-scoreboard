@@ -154,8 +154,10 @@ export const ScoreTable = ({ config, playerNames, onReset, startingDealerIndex }
 
 
 
+  const gameClass = `game-${config.gameName.toLowerCase().replace(/\s+/g, '-')}`;
+
   return (
-    <div className="table-container">
+    <div className={`table-container ${gameClass}`}>
       <div className="table-header">
         <h2>{config.gameName} Scoreboard</h2>
       </div>
